@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from .models import Producto
-from .forms import ProductoForm
+from .forms import ProductoForm, RegistroForm
 from django.db.models import Sum
 from .models import Cliente, Proveedor, Producto, Venta
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 
 def dashboard(request):
     clientes_count = Cliente.objects.count()
@@ -34,7 +36,8 @@ def dashboard(request):
         'beneficio_bruto': beneficio_bruto,
         'beneficio_neto': beneficio_neto,
     }
-    return render(request, 'inventario/listar_productos.html')
+    return render(request, 'inventario/dashboard.html')
+
 
 def crear_producto(request):
     if request.method == 'POST':
@@ -59,18 +62,18 @@ from django.contrib.auth.models import User
 def login_view(request):
     form = LoginForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        email = form.cleaned_data['email']
+        username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         remember = form.cleaned_data['remember_me']
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(username=username)
             user = authenticate(request, username=user.username, password=password)
             if user:
                 login(request, user)
                 if not remember:
                     request.session.set_expiry(0)  # Cierra sesión al cerrar navegador
-                return redirect('listar_productos')  # Redirige al panel principal
+                return redirect('dashboard')
             else:
                 form.add_error(None, 'Credenciales incorrectas')
         except User.DoesNotExist:
@@ -89,4 +92,24 @@ def register_view(request):
             return redirect('login')
     else:
         form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'inventario/registro.html', {'form': form})
+
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # o redirigí al panel
+    else:
+        form = RegistroForm()
+    return render(request, 'inventario/registro.html', {'form': form})
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def dashboard(request):
+    return render(request, 'inventario/dashboard.html')
+
+
