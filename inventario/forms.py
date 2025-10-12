@@ -9,19 +9,17 @@ class ProductoForm(forms.ModelForm):
         fields = ['nombre', 'categoria', 'unidad_medida', 'precio_unitario', 'stock_actual', 'stock_minimo']
 
 # inventario/forms.py
-from django import forms
 class LoginForm(forms.Form):
     username = forms.CharField(label='Usuario')
     password = forms.CharField(widget=forms.PasswordInput, label='Contraseña')
     remember_me = forms.BooleanField(required=False, label='Recuérdame')
 
 class RegistroForm(UserCreationForm):
+    username = forms.CharField(label='Usuario')
+    password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirmar contraseña', widget=forms.PasswordInput)
+
     class Meta:
         model = User
         fields = ['username', 'password1', 'password2']
-        labels = {
-            'username': 'Nombre de usuario',
-            'password1': 'Contraseña',
-            'password2': 'Confirmar contraseña',
-        }
 

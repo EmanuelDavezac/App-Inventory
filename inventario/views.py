@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
-from .models import Producto
 from .forms import ProductoForm, RegistroForm
-from django.db.models import Sum
+from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from .models import Cliente, Proveedor, Producto, Venta
-from django.contrib.auth.decorators import login_required, user_passes_test
-
+from django.contrib.auth.decorators import login_required
+from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Producto
+from django.contrib.auth.forms import UserCreationForm
 
 def dashboard(request):
     clientes_count = Cliente.objects.count()
@@ -13,10 +13,19 @@ def dashboard(request):
     facturas_count = Venta.objects.count()
 
     existencia_total = Producto.objects.aggregate(total=Sum('stock_actual'))['total'] or 0
-    existencia_vendida = getattr(Venta.objects.aggregate(total=Sum('cantidad')), 'total', 0) or 0
+    existencia_vendida = DetalleVenta.objects.aggregate(total=Sum('cantidad'))['total'] or 0
     existencia_actual = max(existencia_total - existencia_vendida, 0)
 
-    importe_vendido = Venta.objects.aggregate(total=Sum('producto'))['total'] or 0
+    # Corrección aquí:
+    importe_vendido = DetalleVenta.objects.aggregate(
+        total=Sum(
+            ExpressionWrapper(
+                F('cantidad') * F('precio_unitario'),
+                output_field=DecimalField()
+            )
+        )
+    )['total'] or 0
+
     importe_pagado = importe_vendido
     importe_restante = max(importe_vendido - importe_pagado, 0)
     beneficio_bruto = 0  
@@ -36,8 +45,7 @@ def dashboard(request):
         'beneficio_bruto': beneficio_bruto,
         'beneficio_neto': beneficio_neto,
     }
-    return render(request, 'inventario/dashboard.html')
-
+    return render(request, 'dashboard.html', ctx)
 
 def crear_producto(request):
     if request.method == 'POST':
@@ -47,11 +55,11 @@ def crear_producto(request):
             return redirect('listar_productos')
     else:
         form = ProductoForm()
-    return render(request, 'inventario/crear_producto.html', {'form': form})
+    return render(request, 'crear_producto.html', {'form': form})
 
 def listar_productos(request):
     productos = Producto.objects.all().order_by('nombre')
-    return render(request, 'inventario/listar_productos.html', {'productos': productos})
+    return render(request, 'listar_productos.html', {'productos': productos})
 
 # inventario/views.py
 from django.shortcuts import render, redirect
@@ -60,29 +68,29 @@ from .forms import LoginForm
 from django.contrib.auth.models import User
 
 def login_view(request):
-    form = LoginForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        remember = form.cleaned_data['remember_me']
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username') # O como se llame tu campo
+            password = form.cleaned_data.get('password')
 
-        try:
-            user = User.objects.get(username=username)
-            user = authenticate(request, username=user.username, password=password)
-            if user:
+            # authenticate se encarga de todo por vos
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                # Si el usuario es válido, lo logueamos
                 login(request, user)
-                if not remember:
-                    request.session.set_expiry(0)  # Cierra sesión al cerrar navegador
-                return redirect('dashboard')
+                return redirect('dashboard') # Redirigir a la página principal
             else:
-                form.add_error(None, 'Credenciales incorrectas')
-        except User.DoesNotExist:
-            form.add_error('email', 'Correo no registrado')
+                # Si user es None, las credenciales son incorrectas
+                form.add_error(None, 'El usuario o la contraseña son incorrectos.')
+    else:
+        form = LoginForm()
 
-    return render(request, 'inventario/login.html', {'form': form})
+    return render(request, 'login.html', {'form': form})
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
+
+
 
 def register_view(request):
     if request.method == 'POST':
@@ -92,7 +100,7 @@ def register_view(request):
             return redirect('login')
     else:
         form = UserCreationForm()
-    return render(request, 'inventario/registro.html', {'form': form})
+    return render(request, 'registro.html', {'form': form})
 
 def registro(request):
     if request.method == 'POST':
@@ -102,7 +110,7 @@ def registro(request):
             return redirect('login')  # o redirigí al panel
     else:
         form = RegistroForm()
-    return render(request, 'inventario/registro.html', {'form': form})
+    return render(request, 'registro.html', {'form': form})
 
 
 from django.shortcuts import render
@@ -110,6 +118,6 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def dashboard(request):
-    return render(request, 'inventario/dashboard.html')
+    return render(request, 'dashboard.html')
 
 
