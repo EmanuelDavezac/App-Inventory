@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Todos los clientes{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Clientes registrados</h3>
+        <div class="card-tools">
+            <a href="{% url 'cliente_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Cliente nuevo
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo electrónico</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th style="width: 150px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente.nombre }}</td>
+                    <td>{{ cliente.correo_electronico }}</td>
+                    <td>{{ cliente.telefono|default:"N/A" }}</td>
+                    <td>{{ cliente.direccion|default:"N/A" }}</td>
+                    <td>
+                        <a href="{% url 'cliente_update' cliente.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-pencil-alt"></i> Editar
+                        </a>
+                        <a href="{% url 'cliente_delete' cliente.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No hay clientes registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -27,9 +27,10 @@ class Producto(models.Model):
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
-    email = models.EmailField(blank=True, null=True)  # Ahora es opcional
     telefono = models.CharField(max_length=20, blank=True)
-
+    correo_electronico = models.CharField(max_length=255, blank=True, null=True)
+    direccion = models.CharField(max_length=255, blank=True, null=True)
+    
     def __str__(self):
         return self.nombre
 

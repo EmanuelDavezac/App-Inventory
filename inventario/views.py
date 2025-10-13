@@ -5,6 +5,8 @@ from .models import Cliente, Proveedor, Producto, Venta
 from django.contrib.auth.decorators import login_required
 from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Producto
 from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 def dashboard(request):
     clientes_count = Cliente.objects.count()
@@ -90,8 +92,6 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-
-
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -120,4 +120,28 @@ from django.contrib.auth.decorators import login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
 
+# Vista para listar todos los clientes
+class ClienteListView(ListView):
+    model = Cliente
+    template_name = 'cliente_list.html'
+    context_object_name = 'clientes'
+
+class ClienteCreateView(CreateView):
+    model = Cliente
+    template_name = 'cliente_form.html'
+    fields = ['nombre', 'correo_electronico', 'telefono', 'direccion'] # Campos que aparecerán en el form
+    success_url = reverse_lazy('cliente_list') # A dónde ir después de crear con éxito
+
+# Vista para actualizar (editar) un cliente
+class ClienteUpdateView(UpdateView):
+    model = Cliente
+    template_name = 'cliente_form.html'
+    fields = ['nombre', 'correo_electronico', 'telefono', 'direccion']
+    success_url = reverse_lazy('cliente_list')
+
+# Vista para eliminar un cliente
+class ClienteDeleteView(DeleteView):
+    model = Cliente
+    template_name = 'cliente_confirm_delete.html'
+    success_url = reverse_lazy('cliente_list')
 
