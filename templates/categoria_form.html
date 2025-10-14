@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    {% if object %}Editar{% else %}Nueva{% endif %} Categoría
+{% endblock %}
+
+{% block content %}
+<div class="card card-primary shadow-sm" style="max-width: 500px;">
+    <div class="card-header">
+        <h3 class="card-title">Datos de la Categoría</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+            <div class="form-group">
+                <label for="id_nombre">Nombre</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors }}</div>{% endif %}
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <a href="{% url 'categoria_list' %}" class="btn btn-light mr-2">Cancelar</a>
+            <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

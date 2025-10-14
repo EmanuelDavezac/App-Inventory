@@ -2,7 +2,9 @@ from django.urls import path
 from . import views
 from .views import login_view
 from .views import (ClienteListView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView,
-                    ProveedorListView, ProveedorCreateView, ProveedorUpdateView, ProveedorDeleteView)
+                    ProveedorListView, ProveedorCreateView, ProveedorUpdateView, ProveedorDeleteView,
+                    CategoriaListView, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView,
+                    ProductoListView, ProductoCreateView, ProductoUpdateView, ProductoDeleteView)
 
 urlpatterns = [
     path('crear/', views.crear_producto, name='crear_producto'),
@@ -20,4 +22,14 @@ urlpatterns = [
     path('proveedores/nuevo/', ProveedorCreateView.as_view(), name='proveedor_create'),
     path('proveedores/<int:pk>/editar/', ProveedorUpdateView.as_view(), name='proveedor_update'),
     path('proveedores/<int:pk>/eliminar/', ProveedorDeleteView.as_view(), name='proveedor_delete'),
+
+    path('categorias/', CategoriaListView.as_view(), name='categoria_list'),
+    path('categorias/nueva/', CategoriaCreateView.as_view(), name='categoria_create'),
+    path('categorias/<int:pk>/editar/', CategoriaUpdateView.as_view(), name='categoria_update'),
+    path('categorias/<int:pk>/eliminar/', CategoriaDeleteView.as_view(), name='categoria_delete'),
+
+    path('productos/', ProductoListView.as_view(), name='producto_list'),
+    path('productos/nuevo/', ProductoCreateView.as_view(), name='producto_create'),
+    path('productos/<int:pk>/editar/', ProductoUpdateView.as_view(), name='producto_update'),
+    path('productos/<int:pk>/eliminar/', ProductoDeleteView.as_view(), name='producto_delete'),
 ]
