@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    {% if object %}
+        Editar Proveedor
+    {% else %}
+        Crear Proveedor Nuevo
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Datos del Proveedor</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+            {{ form.as_p }}
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a href="{% url 'proveedor_list' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

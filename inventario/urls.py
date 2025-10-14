@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 from .views import login_view
-from .views import ClienteListView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView
+from .views import (ClienteListView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView,
+                    ProveedorListView, ProveedorCreateView, ProveedorUpdateView, ProveedorDeleteView)
 
 urlpatterns = [
     path('crear/', views.crear_producto, name='crear_producto'),
@@ -9,11 +10,14 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('registro/', views.registro, name='registro'),
     path('dashboard/', views.dashboard, name='dashboard'),
+
     path('clientes/', ClienteListView.as_view(), name='cliente_list'),
-    # Ruta para crear un nuevo cliente
     path('clientes/nuevo/', ClienteCreateView.as_view(), name='cliente_create'),
-    # Ruta para editar un cliente existente
     path('clientes/<int:pk>/editar/', ClienteUpdateView.as_view(), name='cliente_update'),
-    # Ruta para eliminar un cliente
     path('clientes/<int:pk>/eliminar/', ClienteDeleteView.as_view(), name='cliente_delete'), 
+
+    path('proveedores/', ProveedorListView.as_view(), name='proveedor_list'),
+    path('proveedores/nuevo/', ProveedorCreateView.as_view(), name='proveedor_create'),
+    path('proveedores/<int:pk>/editar/', ProveedorUpdateView.as_view(), name='proveedor_update'),
+    path('proveedores/<int:pk>/eliminar/', ProveedorDeleteView.as_view(), name='proveedor_delete'),
 ]

@@ -145,3 +145,25 @@ class ClienteDeleteView(DeleteView):
     template_name = 'cliente_confirm_delete.html'
     success_url = reverse_lazy('cliente_list')
 
+class ProveedorListView(ListView):
+    model = Proveedor
+    template_name = 'proveedor_list.html'
+    context_object_name = 'proveedores'
+
+class ProveedorCreateView(CreateView):
+    model = Proveedor
+    template_name = 'proveedor_form.html'
+    fields = ['nombre', 'telefono', 'email', 'direccion']
+    success_url = reverse_lazy('proveedor_list')
+
+class ProveedorUpdateView(UpdateView):
+    model = Proveedor
+    template_name = 'proveedor_form.html'
+    fields = ['nombre', 'telefono', 'email', 'direccion']
+    success_url = reverse_lazy('proveedor_list')
+
+class ProveedorDeleteView(DeleteView):
+    model = Proveedor
+    template_name = 'proveedor_confirm_delete.html'
+    success_url = reverse_lazy('proveedor_list')
+
