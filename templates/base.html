@@ -11,9 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
-
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
     <style>
@@ -38,7 +36,6 @@
                 <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
             </li>
         </ul>
-
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="nav-link" href="#"><i class="far fa-bell"></i></a>
@@ -54,7 +51,6 @@
             <i class="fas fa-dolly-flatbed ml-2 mr-2"></i>
             <span class="brand-text">Inventario</span>
         </a>
-
         <div class="sidebar">
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
@@ -68,27 +64,34 @@
                             <i class="nav-icon fas fa-users"></i><p>Clientes</p>
                         </a>
                     </li>
-                    <li class="nav-item has-treeview"> <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-boxes"></i>
+                    
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-tasks"></i>
                             <p>
-                                Productos
-                                <i class="right fas fa-angle-left"></i> </p>
+                                Gestión de Productos
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="{% url 'proveedor_list' %}" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
                                     <p>Proveedores</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
+                                <a href="{% url 'categoria_list' %}" class="nav-link">
                                     <p>Categorías</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'producto_list' %}" class="nav-link">
+                                    <p>Productos</p>
                                 </a>
                             </li>
                         </ul>
                     </li>
+
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-truck-loading"></i><p>Existencias</p>
@@ -122,7 +125,6 @@
                 </div>
             </div>
         </div>
-
         <section class="content">
             <div class="container-fluid">
                 {% block content %}{% endblock %}

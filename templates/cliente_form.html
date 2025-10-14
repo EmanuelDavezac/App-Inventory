@@ -4,23 +4,55 @@
     {% if object %}
         Editar Cliente
     {% else %}
-        Crear Cliente Nuevo
+        Información del cliente
     {% endif %}
 {% endblock %}
 
 {% block content %}
-<div class="card card-primary">
+<div class="card card-primary shadow-sm">
     <div class="card-header">
         <h3 class="card-title">Datos del Cliente</h3>
     </div>
     <form method="post">
         {% csrf_token %}
         <div class="card-body">
-            {{ form.as_p }}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                </div>
+                {{ form.nombre }}
+            </div>
+            {% if form.nombre.errors %}<div class="text-danger small mb-2">{{ form.nombre.errors }}</div>{% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                </div>
+                {{ form.correo_electronico }}
+            </div>
+            {% if form.correo_electronico.errors %}<div class="text-danger small mb-2">{{ form.correo_electronico.errors }}</div>{% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                </div>
+                {{ form.telefono }}
+            </div>
+            {% if form.telefono.errors %}<div class="text-danger small mb-2">{{ form.telefono.errors }}</div>{% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                </div>
+                {{ form.direccion }}
+            </div>
+            {% if form.direccion.errors %}<div class="text-danger small mb-2">{{ form.direccion.errors }}</div>{% endif %}
+
         </div>
-        <div class="card-footer">
+        <div class="card-footer text-right">
+            <a href="{% url 'cliente_list' %}" class="btn btn-light mr-2">Cancelar</a>
             <button type="submit" class="btn btn-success">Guardar</button>
-            <a href="{% url 'cliente_list' %}" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
 </div>

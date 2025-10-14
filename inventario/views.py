@@ -3,7 +3,7 @@ from .forms import ProductoForm, RegistroForm
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from .models import Cliente, Proveedor, Producto, Venta
 from django.contrib.auth.decorators import login_required
-from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Producto
+from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Categoria
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
@@ -129,8 +129,22 @@ class ClienteListView(ListView):
 class ClienteCreateView(CreateView):
     model = Cliente
     template_name = 'cliente_form.html'
-    fields = ['nombre', 'correo_electronico', 'telefono', 'direccion'] # Campos que aparecerán en el form
-    success_url = reverse_lazy('cliente_list') # A dónde ir después de crear con éxito
+    fields = ['nombre', 'correo_electronico', 'telefono', 'direccion']
+    success_url = reverse_lazy('cliente_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        placeholders = {
+            'nombre': 'Nombre completo del cliente',
+            'correo_electronico': 'Correo electrónico',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección'
+        }
+        for field_name, field in form.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            if field_name in placeholders:
+                field.widget.attrs['placeholder'] = placeholders[field_name]
+        return form
 
 # Vista para actualizar (editar) un cliente
 class ClienteUpdateView(UpdateView):
@@ -139,12 +153,28 @@ class ClienteUpdateView(UpdateView):
     fields = ['nombre', 'correo_electronico', 'telefono', 'direccion']
     success_url = reverse_lazy('cliente_list')
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        placeholders = {
+            'nombre': 'Nombre completo del cliente',
+            'correo_electronico': 'Correo electrónico',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección'
+        }
+        for field_name, field in form.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            if field_name in placeholders:
+                field.widget.attrs['placeholder'] = placeholders[field_name]
+        return form
+
 # Vista para eliminar un cliente
 class ClienteDeleteView(DeleteView):
     model = Cliente
     template_name = 'cliente_confirm_delete.html'
     success_url = reverse_lazy('cliente_list')
 
+
+# === VISTAS PARA PROVEEDORES ===
 class ProveedorListView(ListView):
     model = Proveedor
     template_name = 'proveedor_list.html'
@@ -153,17 +183,132 @@ class ProveedorListView(ListView):
 class ProveedorCreateView(CreateView):
     model = Proveedor
     template_name = 'proveedor_form.html'
-    fields = ['nombre', 'telefono', 'email', 'direccion']
+    fields = ['nombre', 'email', 'telefono', 'direccion'] # Asegúrate que el campo sea 'email'
     success_url = reverse_lazy('proveedor_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Diccionario con los placeholders para cada campo
+        placeholders = {
+            'nombre': 'Nombre del proveedor',
+            'email': 'Correo electrónico',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección'
+        }
+        # Recorremos los campos para agregarles la clase y el placeholder
+        for field_name, field in form.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            if field_name in placeholders:
+                field.widget.attrs['placeholder'] = placeholders[field_name]
+        return form
+
 
 class ProveedorUpdateView(UpdateView):
     model = Proveedor
     template_name = 'proveedor_form.html'
-    fields = ['nombre', 'telefono', 'email', 'direccion']
+    fields = ['nombre', 'email', 'telefono', 'direccion'] # Asegúrate que el campo sea 'email'
     success_url = reverse_lazy('proveedor_list')
+
+    # Replicamos la misma lógica para la vista de edición
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        placeholders = {
+            'nombre': 'Nombre del proveedor',
+            'email': 'Correo electrónico',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección'
+        }
+        for field_name, field in form.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            if field_name in placeholders:
+                field.widget.attrs['placeholder'] = placeholders[field_name]
+        return form
 
 class ProveedorDeleteView(DeleteView):
     model = Proveedor
     template_name = 'proveedor_confirm_delete.html'
     success_url = reverse_lazy('proveedor_list')
+
+# === VISTAS PARA CATEGORIAS ===
+class CategoriaListView(ListView):
+    model = Categoria
+    template_name = 'categoria_list.html'
+    context_object_name = 'categorias'
+
+class CategoriaCreateView(CreateView):
+    model = Categoria
+    template_name = 'categoria_form.html'
+    fields = ['nombre'] # Solo necesitamos el campo nombre
+    success_url = reverse_lazy('categoria_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['nombre'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nombre de la categoría'})
+        return form
+
+class CategoriaUpdateView(UpdateView):
+    model = Categoria
+    template_name = 'categoria_form.html'
+    fields = ['nombre']
+    success_url = reverse_lazy('categoria_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['nombre'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nombre de la categoría'})
+        return form
+
+class CategoriaDeleteView(DeleteView):
+    model = Categoria
+    template_name = 'categoria_confirm_delete.html'
+    success_url = reverse_lazy('categoria_list')
+
+# === VISTAS PARA PRODUCTOS ===
+class ProductoListView(ListView):
+    model = Producto
+    template_name = 'producto_list.html'
+    context_object_name = 'productos'
+
+class ProductoCreateView(CreateView):
+    model = Producto
+    template_name = 'producto_form.html'
+    # 1. Actualizamos la lista de campos a los de tu modelo
+    fields = ['nombre', 'categoria', 'unidad_medida', 'precio_unitario', 'stock_actual', 'stock_minimo', 'activo']
+    success_url = reverse_lazy('producto_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # 2. Aplicamos estilos y placeholders a los campos
+        form.fields['nombre'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Ej: Gaseosa Coca-Cola 2.25L'})
+        form.fields['categoria'].widget.attrs.update({'class': 'form-control'})
+        form.fields['unidad_medida'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Ej: unidad, kg, caja'})
+        form.fields['precio_unitario'].widget.attrs.update({'class': 'form-control'})
+        form.fields['stock_actual'].widget.attrs.update({'class': 'form-control'})
+        form.fields['stock_minimo'].widget.attrs.update({'class': 'form-control'})
+        # El campo 'activo' (booleano) se renderiza como checkbox y no necesita la clase 'form-control'
+        form.fields['activo'].widget.attrs.update({'class': 'form-check-input'})
+        return form
+
+class ProductoUpdateView(UpdateView):
+    model = Producto
+    template_name = 'producto_form.html'
+    # Hacemos lo mismo para la vista de edición
+    fields = ['nombre', 'categoria', 'unidad_medida', 'precio_unitario', 'stock_actual', 'stock_minimo', 'activo']
+    success_url = reverse_lazy('producto_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['nombre'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Ej: Gaseosa Coca-Cola 2.25L'})
+        form.fields['categoria'].widget.attrs.update({'class': 'form-control'})
+        form.fields['unidad_medida'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Ej: unidad, kg, caja'})
+        form.fields['precio_unitario'].widget.attrs.update({'class': 'form-control'})
+        form.fields['stock_actual'].widget.attrs.update({'class': 'form-control'})
+        form.fields['stock_minimo'].widget.attrs.update({'class': 'form-control'})
+        form.fields['activo'].widget.attrs.update({'class': 'form-check-input'})
+        return form
+
+class ProductoDeleteView(DeleteView):
+    model = Producto
+    template_name = 'producto_confirm_delete.html'
+    success_url = reverse_lazy('producto_list')
+
 
