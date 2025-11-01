@@ -15,7 +15,7 @@ class Producto(models.Model):
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     stock_actual = models.IntegerField()
     stock_minimo = models.IntegerField()
-    activo = models.BooleanField(default=True)  
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre
