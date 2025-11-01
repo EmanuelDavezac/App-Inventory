@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    {% if object %}
+        Editar Proveedor
+    {% else %}
+        Información del proveedor
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card card-primary shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">Datos del Proveedor</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                </div>
+                {{ form.nombre }}
+            </div>
+            {% if form.nombre.errors %}<div class="text-danger small mb-2">{{ form.nombre.errors }}</div>{% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                </div>
+                {{ form.email }}
+            </div>
+            {% if form.email.errors %}<div class="text-danger small mb-2">{{ form.email.errors }}</div>{% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                </div>
+                {{ form.telefono }}
+            </div>
+            {% if form.telefono.errors %}<div class="text-danger small mb-2">{{ form.telefono.errors }}</div>{% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                </div>
+                {{ form.direccion }}
+            </div>
+            {% if form.direccion.errors %}<div class="text-danger small mb-2">{{ form.direccion.errors }}</div>{% endif %}
+
+        </div>
+        <div class="card-footer text-right">
+            <a href="{% url 'proveedor_list' %}" class="btn btn-light mr-2">Cancelar</a>
+            <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
