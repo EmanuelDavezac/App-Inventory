@@ -1,12 +1,17 @@
 from django.shortcuts import render, redirect
-from .forms import ProductoForm, RegistroForm
+from .forms import ProductoForm, RegistroForm, FacturaForm, DetalleFacturaForm
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from .models import Cliente, Proveedor, Producto, Venta
 from django.contrib.auth.decorators import login_required
-from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Categoria
+from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Categoria, Factura, DetalleFactura
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.forms import inlineformset_factory
+from django.db import transaction
+
+
+
 
 def dashboard(request):
     clientes_count = Cliente.objects.count()
@@ -312,3 +317,88 @@ class ProductoDeleteView(DeleteView):
     success_url = reverse_lazy('producto_list')
 
 
+def FacturaCreateView(request):
+    """
+    Vista para crear una nueva factura con sus detalles.
+    """
+    
+    # Creamos el 'FormSet'. Esto maneja múltiples formularios de 'DetalleFactura'
+    # relacionados con UNA 'Factura'.
+    # extra=1: Muestra 1 formulario de detalle vacío por defecto.
+    DetalleFacturaFormSet = inlineformset_factory(
+        Factura, 
+        DetalleFactura, 
+        form=DetalleFacturaForm, 
+        extra=1, 
+        can_delete=True # Permite eliminar líneas
+    )
+
+    if request.method == 'POST':
+        # Si el formulario se envió...
+        form = FacturaForm(request.POST)
+        formset = DetalleFacturaFormSet(request.POST, prefix='detalles')
+
+        if form.is_valid() and formset.is_valid():
+            # Usamos una transacción para que si algo falla, se deshaga todo.
+            # No queremos una Factura sin detalles o viceversa.
+            with transaction.atomic():
+                # 1. Guardar la Factura (el encabezado)
+                factura = form.save(commit=False)
+                factura.creado_por = request.user # Asigna el usuario logueado
+                factura.total = 0 # El total se calculará después
+                factura.save() # Aquí se guarda la Factura y obtiene un ID
+
+                # 2. Guardar los Detalles (el formset)
+                detalles = formset.save(commit=False)
+                total_factura = 0
+
+                for detalle in detalles:
+                    
+                    detalle.precio_unitario = detalle.producto.precio_unitario 
+                    
+                    
+                    detalle.subtotal = detalle.cantidad * detalle.precio_unitario 
+                    
+                    
+                    total_factura += detalle.subtotal
+                    
+                    
+                    detalle.factura = factura 
+                    
+                    
+                    detalle.save()
+                
+                
+                factura.total = total_factura
+                factura.save()
+
+            # Redirigir a alguna parte... (ej: a la lista de facturas, que aún no creamos)
+            # Por ahora, redirigimos al dashboard
+            return redirect('dashboard') # ¡Asegúrate de que 'dashboard' sea un name="" válido en tus urls.py!
+
+    else:
+        # Si es un GET (primera vez que se carga la página)
+        form = FacturaForm()
+        formset = DetalleFacturaFormSet(prefix='detalles')
+
+    # Preparamos el contexto para la plantilla
+    context = {
+        'form': form,
+        'formset': formset,
+        'page_title': 'Nueva Factura' # Un título para tu base.html
+    }
+    
+    # Usamos la plantilla 'factura_form.html' (que vamos a crear ahora)
+    return render(request, 'factura_form.html', context)
+
+
+class FacturaListView(ListView):
+    model = Factura
+    template_name = 'factura_list.html'  # La plantilla que vamos a crear
+    context_object_name = 'facturas'     # Cómo se llamará la lista en el HTML
+    ordering = ['-fecha_emision']        # Mostrar las más nuevas primero
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Historial de Facturas'
+        return context

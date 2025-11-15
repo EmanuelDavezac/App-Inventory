@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ page_title|default:"Nueva Factura" }}
+{% endblock title %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ page_title|default:"Nueva Factura" }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">{{ page_title|default:"Nueva Factura" }}</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-file-invoice-dollar me-1"></i>
+            Datos de la Factura
+        </div>
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }}</label>
+                        {{ form.cliente }}
+                        {% if form.cliente.errors %}
+                            <div class="text-danger">{{ form.cliente.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <h4 class="mt-4">Productos</h4>
+                
+                {{ formset.management_form }} <div id="formset-container">
+                    {% for detalle_form in formset %}
+                    <div class="row detalle-form mb-2 border-bottom pb-2">
+                        {{ detalle_form.id }} 
+                        
+                        <div class="col-md-5">
+                            <label class="form-label">{{ detalle_form.producto.label }}</label>
+                            {{ detalle_form.producto }}
+                            {% if detalle_form.producto.errors %}
+                                <div class="text-danger">{{ detalle_form.producto.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{{ detalle_form.cantidad.label }}</label>
+                            {{ detalle_form.cantidad }}
+                            {% if detalle_form.cantidad.errors %}
+                                <div class="text-danger">{{ detalle_form.cantidad.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Precio</label>
+                            <input type="text" class="form-control precio-display" readonly disabled>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            {% if detalle_form.instance.pk and formset.can_delete %}
+                                <div class="form-check">
+                                    {{ detalle_form.DELETE }}
+                                    <label class="form-check-label" for="{{ detalle_form.DELETE.id_for_label }}">Eliminar</label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="add-form" class="btn btn-secondary btn-sm mt-2">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </button>
+
+                <div id="empty-form" class="d-none">
+                    <div class="row detalle-form mb-2 border-bottom pb-2">
+                        {{ formset.empty_form.id }}
+                        <div class="col-md-5">
+                            <label class="form-label">Producto</label>
+                            {{ formset.empty_form.producto }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Cantidad</label>
+                            {{ formset.empty_form.cantidad }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Precio</label>
+                            <input type="text" class="form-control precio-display" readonly disabled>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-form">Eliminar</B>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4">
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Guardar Factura
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formsetContainer = document.getElementById('formset-container');
+    const addButton = document.getElementById('add-form');
+    const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
+    const totalFormsInput = document.getElementById('id_detalles-TOTAL_FORMS'); // 'detalles' es el prefix
+
+    addButton.addEventListener('click', function() {
+        // Obtener el índice actual
+        let formIndex = parseInt(totalFormsInput.value);
+        
+        // Crear el nuevo formulario reemplazando el prefijo
+        let newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formIndex);
+        
+        // Crear un div temporal para insertar el HTML
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newFormHtml;
+        let newForm = tempDiv.firstElementChild; // El 'div.row.detalle-form'
+
+        // Añadir el evento de eliminar al nuevo botón
+        newForm.querySelector('.remove-form').addEventListener('click', function() {
+            newForm.remove();
+            // (Opcional: podrías re-indexar o manejar el TOTAL_FORMS al eliminar, 
+            // pero Django también lo maneja si se borra el elemento)
+        });
+
+        // Insertar el nuevo formulario en el contenedor
+        formsetContainer.appendChild(newForm);
+        
+        // Incrementar el contador de formularios
+        totalFormsInput.value = formIndex + 1;
+    });
+
+    // Añadir evento de eliminar a los botones que ya existen (excepto el primero)
+    document.querySelectorAll('.detalle-form').forEach((form, index) => {
+        if (index === 0) return; // No dejamos borrar el primer formulario
+        
+        let removeButton = form.querySelector('.remove-form'); // Asumiendo que se añaden dinámicamente
+        if (removeButton) {
+            removeButton.addEventListener('click', function() {
+                form.remove();
+            });
+        }
+    });
+
+    // (Opcional Avanzado)
+    // Podrías añadir un fetch aquí para que cuando cambie el 'producto-select',
+    // se rellene el input 'precio-display' con el precio de ese producto.
+});
+</script>
+{% endblock extra_js %}

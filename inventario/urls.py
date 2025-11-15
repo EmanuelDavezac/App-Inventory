@@ -4,7 +4,8 @@ from .views import login_view
 from .views import (ClienteListView, ClienteCreateView, ClienteUpdateView, ClienteDeleteView,
                     ProveedorListView, ProveedorCreateView, ProveedorUpdateView, ProveedorDeleteView,
                     CategoriaListView, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView,
-                    ProductoListView, ProductoCreateView, ProductoUpdateView, ProductoDeleteView)
+                    ProductoListView, ProductoCreateView, ProductoUpdateView, ProductoDeleteView,
+                    FacturaCreateView, FacturaListView)
 
 urlpatterns = [
     path('crear/', views.crear_producto, name='crear_producto'),
@@ -32,4 +33,7 @@ urlpatterns = [
     path('productos/nuevo/', ProductoCreateView.as_view(), name='producto_create'),
     path('productos/<int:pk>/editar/', ProductoUpdateView.as_view(), name='producto_update'),
     path('productos/<int:pk>/eliminar/', ProductoDeleteView.as_view(), name='producto_delete'),
+    
+    path('facturas/', FacturaListView.as_view(), name='factura_list'),
+    path('facturas/nueva/', views.FacturaCreateView, name='factura_crear'),
 ]

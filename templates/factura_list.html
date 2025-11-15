@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ page_title|default:"Facturas" }}
+{% endblock title %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ page_title|default:"Facturas" }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Facturas</li>
+    </ol>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'factura_crear' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Nueva Factura
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-file-invoice me-1"></i>
+            Historial de Facturas
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>N° Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for factura in facturas %}
+                    <tr>
+                        <td>{{ factura.id }}</td>
+                        <td>{{ factura.cliente.nombre|default:"N/A" }}</td>
+                        <td>{{ factura.fecha_emision|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if factura.estado == 'PAGADA' %} bg-success
+                                {% elif factura.estado == 'PENDIENTE' %} bg-warning
+                                {% else %} bg-danger {% endif %}">
+                                {{ factura.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>${{ factura.total|floatformat:2 }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-info" title="Ver Detalle"><i class="fas fa-eye"></i></a>
+                            <a href="#" class="btn btn-sm btn-danger" title="Anular"><i class="fas fa-times"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay facturas registradas todavía.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/datatables-simple-demo.js' %}"></script>
+{% endblock extra_js %}
