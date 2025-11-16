@@ -52,7 +52,9 @@
                         </td>
                         <td>${{ factura.total|floatformat:2 }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-info" title="Ver Detalle"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'factura_detail' factura.id %}" class="btn btn-sm btn-info" title="Ver Detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="#" class="btn btn-sm btn-danger" title="Anular"><i class="fas fa-times"></i></a>
                         </td>
                     </tr>

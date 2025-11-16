@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page_title|default:"Reporte" }}
+{% endblock title %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ page_title }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Reporte de Bajo Stock</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-warehouse me-1"></i>
+            Productos que requieren reabastecimiento
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th class="text-center">Stock Mínimo</th>
+                        <th class="text-center text-danger">Stock Actual</th>
+                        <th class="text-center">Faltante</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.categoria.nombre|default:"N/A" }}</td>
+                        <td class="text-center">{{ producto.stock_minimo }}</td>
+                        <td class="text-center text-danger fw-bold">{{ producto.stock_actual }}</td>
+                        <td class="text-center">{{ producto.faltante }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">¡Genial! No hay productos con bajo stock.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

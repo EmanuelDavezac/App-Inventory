@@ -1,1 +1,16 @@
+# Entorno Virtual
+venv/
+
+# Bases de datos
+*.sqlite3
 db.sqlite3
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+
+# Archivos de VS Code
+.vscode/
+
+# Archivos de credenciales (si los tuvieras)
+.env

@@ -1,13 +1,32 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+
+    {% if count_bajo_stock > 0 %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> ¡Alerta de Inventario!</h4>
+        <p>
+            Tienes <strong>{{ count_bajo_stock }} producto(s)</strong> que están por debajo o
+            han alcanzado su stock mínimo.
+        </p>
+        <hr>
+        <p class="mb-0">
+            <a href="{% url 'reporte_bajo_stock' %}" class="btn btn-danger">
+                <i class="fas fa-list-ol me-1"></i>
+                Ver productos con bajo stock
+            </a>
+        </p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
     <div class="row">
         <div class="col-lg-3 col-6">
             <div class="small-box bg-success">
                 <div class="inner">
-                    <h3>16</h3>
+                    <h3>{{ clientes_count }}</h3>
                     <p>Clientes</p>
                 </div>
                 <div class="icon">
@@ -19,7 +38,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">
                 <div class="inner">
-                    <h3>10</h3>
+                    <h3>{{ proveedores_count }}</h3>
                     <p>Proveedores</p>
                 </div>
                 <div class="icon">
@@ -31,7 +50,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box" style="background-color: #6f42c1; color: white;">
                 <div class="inner">
-                    <h3>185</h3>
+                    <h3>{{ productos_count }}</h3>
                     <p>Productos</p>
                 </div>
                 <div class="icon">
@@ -43,7 +62,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box bg-secondary">
                 <div class="inner">
-                    <h3>1</h3>
+                    <h3>{{ facturas_count }}</h3>
                     <p>Facturas</p>
                 </div>
                 <div class="icon">
@@ -55,7 +74,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box bg-dark">
                 <div class="inner">
-                    <h3>148</h3>
+                    <h3>{{ existencia_total }}</h3>
                     <p>Existencia total</p>
                 </div>
                 <div class="icon">
@@ -67,7 +86,7 @@
         <div class="col-lg-3 col-6">
             <div class="small-box bg-danger">
                 <div class="inner">
-                    <h3>33</h3>
+                    <h3>{{ existencia_vendida }}</h3>
                     <p>Existencia vendida</p>
                 </div>
                 <div class="icon">

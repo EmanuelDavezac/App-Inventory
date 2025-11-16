@@ -6,10 +6,9 @@ from django.contrib.auth.decorators import login_required
 from .models import Cliente, Proveedor, Producto, Venta, DetalleVenta, Categoria, Factura, DetalleFactura
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.forms import inlineformset_factory
 from django.db import transaction
-
 
 
 
@@ -17,13 +16,15 @@ def dashboard(request):
     clientes_count = Cliente.objects.count()
     proveedores_count = Proveedor.objects.count()
     productos_count = Producto.objects.count()
-    facturas_count = Venta.objects.count()
+    facturas_count = Venta.objects.count() # Asumo que Venta es tu modelo Factura
 
     existencia_total = Producto.objects.aggregate(total=Sum('stock_actual'))['total'] or 0
+    
+    # (Tu lógica de DetalleVenta)
+    # NOTA: Asegúrate de que 'DetalleVenta' sea el nombre correcto de tu modelo de detalles.
     existencia_vendida = DetalleVenta.objects.aggregate(total=Sum('cantidad'))['total'] or 0
-    existencia_actual = max(existencia_total - existencia_vendida, 0)
+    existencia_actual = max(existencia_total - existencia_vendida, 0) # Esto puede no ser preciso, el stock_actual del producto es mejor
 
-    # Corrección aquí:
     importe_vendido = DetalleVenta.objects.aggregate(
         total=Sum(
             ExpressionWrapper(
@@ -38,6 +39,13 @@ def dashboard(request):
     beneficio_bruto = 0  
     beneficio_neto = beneficio_bruto
 
+    
+    productos_bajo_stock = Producto.objects.filter(
+        stock_actual__lte=F('stock_minimo'), 
+        activo=True
+    )
+    count_bajo_stock = productos_bajo_stock.count()
+
     ctx = {
         'clientes_count': clientes_count,
         'proveedores_count': proveedores_count,
@@ -51,7 +59,9 @@ def dashboard(request):
         'importe_restante': importe_restante,
         'beneficio_bruto': beneficio_bruto,
         'beneficio_neto': beneficio_neto,
+        'count_bajo_stock': count_bajo_stock,
     }
+
     return render(request, 'dashboard.html', ctx)
 
 def crear_producto(request):
@@ -402,3 +412,41 @@ class FacturaListView(ListView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Historial de Facturas'
         return context
+    
+
+class FacturaDetailView(DetailView):
+    model = Factura
+    template_name = 'factura_detail.html' 
+    context_object_name = 'factura'       
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context['page_title'] = f'Detalle Factura #{self.get_object().id}'
+        context['detalles'] = self.get_object().detalles.all()
+        return context
+    
+
+class ReporteBajoStockView(ListView):
+    model = Producto
+    template_name = 'reporte_bajo_stock.html'
+    context_object_name = 'productos'
+    
+    def get_queryset(self):
+        queryset = Producto.objects.filter(
+            stock_actual__lte=F('stock_minimo'),
+            activo=True
+        )
+        
+        queryset = queryset.annotate(
+            # faltante = stock_minimo - stock_actual
+            faltante=F('stock_minimo') - F('stock_actual')
+        ).order_by('stock_actual')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Reporte de Productos con Bajo Stock'
+        return context
+    

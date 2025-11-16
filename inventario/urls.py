@@ -5,7 +5,8 @@ from .views import (ClienteListView, ClienteCreateView, ClienteUpdateView, Clien
                     ProveedorListView, ProveedorCreateView, ProveedorUpdateView, ProveedorDeleteView,
                     CategoriaListView, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView,
                     ProductoListView, ProductoCreateView, ProductoUpdateView, ProductoDeleteView,
-                    FacturaCreateView, FacturaListView)
+                    FacturaCreateView, FacturaListView, FacturaDetailView,
+                    ReporteBajoStockView)
 
 urlpatterns = [
     path('crear/', views.crear_producto, name='crear_producto'),
@@ -36,4 +37,8 @@ urlpatterns = [
     
     path('facturas/', FacturaListView.as_view(), name='factura_list'),
     path('facturas/nueva/', views.FacturaCreateView, name='factura_crear'),
+    path('facturas/', FacturaListView.as_view(), name='factura_list'),
+    path('facturas/nueva/', FacturaCreateView, name='factura_crear'),
+    path('facturas/<int:pk>/', FacturaDetailView.as_view(), name='factura_detail'),
+    path('reportes/bajo-stock/', ReporteBajoStockView.as_view(), name='reporte_bajo_stock'),
 ]
